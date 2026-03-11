@@ -2,86 +2,79 @@ import java.util.*;
 
 /**
  * Book My Stay App
- * Version: 7.0
+ * Version: 8.0
  * Description:
- * Adds optional services to existing reservations.
- * Demonstrates extensibility using Map and List.
+ * Maintains booking history and generates reports.
  */
 
-// -------------------- ADD-ON SERVICE MODEL --------------------
+// -------------------- RESERVATION MODEL --------------------
 
-class AddOnService {
+class Reservation {
 
-    private String serviceName;
-    private double price;
+    private String reservationId;
+    private String guestName;
+    private String roomType;
 
-    public AddOnService(String serviceName, double price) {
-        this.serviceName = serviceName;
-        this.price = price;
+    public Reservation(String reservationId, String guestName, String roomType) {
+        this.reservationId = reservationId;
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getReservationId() {
+        return reservationId;
     }
 
-    public double getPrice() {
-        return price;
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public String getRoomType() {
+        return roomType;
     }
 
     @Override
     public String toString() {
-        return serviceName + " ($" + price + ")";
+        return "Reservation ID: " + reservationId +
+                " | Guest: " + guestName +
+                " | Room: " + roomType;
     }
 }
 
-// -------------------- ADD-ON SERVICE MANAGER --------------------
+// -------------------- BOOKING HISTORY --------------------
 
-class AddOnServiceManager {
+class BookingHistory {
 
-    private Map<String, List<AddOnService>> reservationServices = new HashMap<>();
+    private List<Reservation> reservationHistory;
 
-    // attach service to reservation
-    public void addService(String reservationId, AddOnService service) {
-
-        reservationServices.putIfAbsent(reservationId, new ArrayList<>());
-
-        reservationServices.get(reservationId).add(service);
-
-        System.out.println("Service added -> " + service.getServiceName() +
-                " for Reservation ID: " + reservationId);
+    public BookingHistory() {
+        reservationHistory = new ArrayList<>();
     }
 
-    // display services
-    public void displayServices(String reservationId) {
-
-        List<AddOnService> services = reservationServices.get(reservationId);
-
-        if (services == null) {
-            System.out.println("No services selected.");
-            return;
-        }
-
-        System.out.println("\nServices for Reservation " + reservationId);
-
-        for (AddOnService service : services) {
-            System.out.println(service);
-        }
+    // store confirmed booking
+    public void addReservation(Reservation reservation) {
+        reservationHistory.add(reservation);
+        System.out.println("Reservation stored in history -> " + reservation.getReservationId());
     }
 
-    // calculate cost
-    public void calculateTotalCost(String reservationId) {
+    public List<Reservation> getAllReservations() {
+        return reservationHistory;
+    }
+}
 
-        List<AddOnService> services = reservationServices.get(reservationId);
+// -------------------- REPORT SERVICE --------------------
 
-        double total = 0;
+class BookingReportService {
 
-        if (services != null) {
-            for (AddOnService service : services) {
-                total += service.getPrice();
-            }
+    public void generateReport(List<Reservation> reservations) {
+
+        System.out.println("\n---- Booking History Report ----\n");
+
+        for (Reservation r : reservations) {
+            System.out.println(r);
         }
 
-        System.out.println("Total Add-On Cost: $" + total);
+        System.out.println("\nTotal Bookings: " + reservations.size());
     }
 }
 
@@ -93,34 +86,26 @@ public class StayApp {
 
         System.out.println("===============================================");
         System.out.println("Book My Stay - Hotel Booking Management System");
-        System.out.println("Version 7.0");
-        System.out.println("Add-On Service Selection");
+        System.out.println("Version 8.0");
+        System.out.println("Booking History & Reporting");
         System.out.println("===============================================");
 
-        AddOnServiceManager serviceManager = new AddOnServiceManager();
+        BookingHistory history = new BookingHistory();
+        BookingReportService reportService = new BookingReportService();
 
-        // Existing reservation IDs from previous use case
-        String reservation1 = "R101";
-        String reservation2 = "R102";
+        // Simulated confirmed reservations
+        Reservation r1 = new Reservation("R101", "Alice", "Single Room");
+        Reservation r2 = new Reservation("R102", "Bob", "Suite Room");
+        Reservation r3 = new Reservation("R103", "Charlie", "Double Room");
 
-        // Available services
-        AddOnService breakfast = new AddOnService("Breakfast", 15);
-        AddOnService airportPickup = new AddOnService("Airport Pickup", 40);
-        AddOnService spa = new AddOnService("Spa Access", 60);
+        // store in history
+        history.addReservation(r1);
+        history.addReservation(r2);
+        history.addReservation(r3);
 
-        // Guest selects services
-        serviceManager.addService(reservation1, breakfast);
-        serviceManager.addService(reservation1, spa);
+        // admin generates report
+        reportService.generateReport(history.getAllReservations());
 
-        serviceManager.addService(reservation2, airportPickup);
-
-        // Display services
-        serviceManager.displayServices(reservation1);
-        serviceManager.calculateTotalCost(reservation1);
-
-        serviceManager.displayServices(reservation2);
-        serviceManager.calculateTotalCost(reservation2);
-
-        System.out.println("===============================================");
+        System.out.println("\n===============================================");
     }
 }
